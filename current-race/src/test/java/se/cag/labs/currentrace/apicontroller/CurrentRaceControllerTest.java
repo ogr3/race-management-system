@@ -1,6 +1,9 @@
 package se.cag.labs.currentrace.apicontroller;
 
+import com.github.fakemongo.Fongo;
 import com.jayway.restassured.RestAssured;
+import com.lordofthejars.nosqlunit.mongodb.MongoDbRule;
+import com.mongodb.Mongo;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.concurrent.Synchroniser;
@@ -13,8 +16,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
+import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -39,12 +47,13 @@ import java.util.List;
 
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
+import static com.lordofthejars.nosqlunit.mongodb.MongoDbRule.MongoDbRuleBuilder.newMongoDbRule;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = {CurrentRaceApplication.class, CurrentRaceControllerTest.Config.class})
+@SpringApplicationConfiguration(classes = {CurrentRaceApplication.class, CurrentRaceControllerTest.Config.class, CurrentRaceControllerTest.MongoConfiguration.class})
 // NOTE!! order is important
 @WebAppConfiguration
 @IntegrationTest("server.port:0")
@@ -54,12 +63,17 @@ public class CurrentRaceControllerTest {
     @Rule
     @Autowired
     public JUnitRuleMockery context;
+    @Rule
+    public MongoDbRule mongoDbRule = newMongoDbRule().defaultSpringMongoDb("test");
+    @Autowired
+    private ApplicationContext applicationContext;
     @Autowired
     private CurrentRaceRepository repository;
     @Autowired
     private CallbackService callbackService; // This is a singleton and is the same instance as injected into application services
     @Autowired
     private UserManagerService userManagerService; // This is a singleton and is the same instance as injected into application services
+
 
     @Value("${local.server.port}")
     private int port;
@@ -109,7 +123,7 @@ public class CurrentRaceControllerTest {
     public void canCancelRaceIfStartedAndOnlyPost() {
         context.checking(new Expectations() {{
             oneOf(restTemplateMock).postForLocation(
-                    with(equal("http://localhost:8080/onracestatusupdate")),
+                    with(equal("http://localhost:" + port + "/onracestatusupdate")),
                     with(equal(RaceStatus.builder().state(RaceStatus.State.INACTIVE).build())),
                     with(equal(new Object[0]))
             );
@@ -161,7 +175,7 @@ public class CurrentRaceControllerTest {
     public void canUpdatePassageTime_OnlyByPost() {
         context.checking(new Expectations() {{
             oneOf(restTemplateMock).postForLocation(
-                    with(equal("http://localhost:8080/onracestatusupdate")),
+                    with(equal("http://localhost:" + port + "/onracestatusupdate")),
                     with(equal(RaceStatus.builder()
                             .event(RaceStatus.Event.START)
                             .startTime(new Date(1234))
@@ -170,7 +184,7 @@ public class CurrentRaceControllerTest {
                     with(equal(new Object[0]))
             );
             oneOf(restTemplateMock).postForLocation(
-                    with(equal("http://localhost:8080/onracestatusupdate")),
+                    with(equal("http://localhost:" + port + "/onracestatusupdate")),
                     with(equal(RaceStatus.builder()
                             .event(RaceStatus.Event.MIDDLE)
                             .startTime(new Date(1234))
@@ -180,7 +194,7 @@ public class CurrentRaceControllerTest {
                     with(equal(new Object[0]))
             );
             oneOf(restTemplateMock).postForLocation(
-                    with(equal("http://localhost:8080/onracestatusupdate")),
+                    with(equal("http://localhost:" + port + "/onracestatusupdate")),
                     with(equal(RaceStatus.builder()
                             .event(RaceStatus.Event.FINISH)
                             .startTime(new Date(1234))
@@ -206,6 +220,7 @@ public class CurrentRaceControllerTest {
         currentRaceStatus.setCallbackUrl(callbackUrl);
         repository.save(currentRaceStatus);
 
+        assertEquals(1, repository.findAll().size());
         given().param("sensorID", "START").param("timestamp", 1234).
                 when().post(CurrentRaceController.PASSAGE_DETECTED_URL).then().statusCode(HttpStatus.ACCEPTED.value());
         given().param("sensorID", "SPLIT").param("timestamp", 12345).
@@ -215,7 +230,7 @@ public class CurrentRaceControllerTest {
 
         currentRaceStatus = repository.findByRaceId(CurrentRaceStatus.ID);
 
-        context.assertIsSatisfied();
+        //context.assertIsSatisfied();
         assertNotNull(currentRaceStatus);
         assertEquals(new Long(1234), currentRaceStatus.getStartTime());
         assertEquals(new Long(12345), currentRaceStatus.getMiddleTime());
@@ -238,7 +253,7 @@ public class CurrentRaceControllerTest {
     public void secondPassageOfMiddleSensorIsIgnored() {
         context.checking(new Expectations() {{
             oneOf(restTemplateMock).postForLocation(
-                    with(equal("http://localhost:8080/onracestatusupdate")),
+                    with(equal("http://localhost:" + port + "/onracestatusupdate")),
                     with(equal(RaceStatus.builder()
                             .event(RaceStatus.Event.MIDDLE)
                             .middleTime(new Date(1234))
@@ -282,6 +297,27 @@ public class CurrentRaceControllerTest {
         assertEquals("nisse", userList.get(0).getName());
     }
 
+    @Configuration
+    @EnableMongoRepositories
+    @ComponentScan(basePackageClasses = {CurrentRaceRepository.class})
+    static class MongoConfiguration extends AbstractMongoConfiguration {
+
+        @Override
+        protected String getDatabaseName() {
+            return "test";
+        }
+
+        @Bean
+        @Override
+        public Mongo mongo() {
+            return new Fongo("test-db").getMongo();
+        }
+
+        @Override
+        protected String getMappingBasePackage() {
+            return "se.cag.labs.currentrace.services.repository";
+        }
+    }
 
     public static class Config {
         @Bean
