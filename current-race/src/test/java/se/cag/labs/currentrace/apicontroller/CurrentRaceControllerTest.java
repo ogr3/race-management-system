@@ -14,6 +14,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.context.ApplicationContext;
@@ -59,6 +61,7 @@ import static org.junit.Assert.assertNotNull;
 @IntegrationTest("server.port:0")
 @TestPropertySource(locations = "classpath:application-test.properties")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@EnableAutoConfiguration( exclude = {org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration.class })
 public class CurrentRaceControllerTest {
     @Rule
     @Autowired
