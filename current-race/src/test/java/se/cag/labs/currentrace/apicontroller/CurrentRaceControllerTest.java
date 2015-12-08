@@ -95,6 +95,17 @@ public class CurrentRaceControllerTest {
 
     @Test
     public void canStartRace_OnlyByPost() {
+        context.checking(new Expectations() {{
+            allowing(restTemplateMock).postForLocation(
+                    with(equal("asd")),
+                    with(equal(RaceStatus.builder()
+                            .state(RaceStatus.State.ACTIVE)
+                            .build())),
+                    with(equal(new Object[0]))
+            );
+        }});
+
+
         given().param(CurrentRaceController.START_RACE_URL, "asd").when().get("/startRace").then().statusCode(HttpStatus.METHOD_NOT_ALLOWED.value());
         given().param(CurrentRaceController.START_RACE_URL, "asd").when().delete("/startRace").then().statusCode(HttpStatus.METHOD_NOT_ALLOWED.value());
         given().param(CurrentRaceController.START_RACE_URL, "asd").when().put("/startRace").then().statusCode(HttpStatus.METHOD_NOT_ALLOWED.value());
@@ -205,6 +216,14 @@ public class CurrentRaceControllerTest {
                             .state(RaceStatus.State.INACTIVE)
                             .build())),
                     with(equal(new Object[0]))
+
+            );
+            allowing(restTemplateMock).postForLocation(
+                    with(equal("asd")),
+                    with(equal(RaceStatus.builder()
+                            .state(RaceStatus.State.ACTIVE)
+                            .build())),
+                    with(equal(new Object[0]))
             );
         }});
         given().param("sensorID", "START").param("timestamp", 1234).
@@ -259,6 +278,13 @@ public class CurrentRaceControllerTest {
                     with(equal(RaceStatus.builder()
                             .event(RaceStatus.Event.MIDDLE)
                             .middleTime(new Date(1234))
+                            .state(RaceStatus.State.ACTIVE)
+                            .build())),
+                    with(equal(new Object[0]))
+            );
+            allowing(restTemplateMock).postForLocation(
+                    with(equal("asd")),
+                    with(equal(RaceStatus.builder()
                             .state(RaceStatus.State.ACTIVE)
                             .build())),
                     with(equal(new Object[0]))
