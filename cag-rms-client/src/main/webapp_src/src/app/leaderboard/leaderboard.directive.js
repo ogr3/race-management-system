@@ -2,16 +2,14 @@
 (function () {
   angular.module('cag-rms-client').directive('leaderboard', factory);
 
-  function factory($log, $http) {
+  function factory($log, clientApiService) {
     $log.log("in leaderboard");
 
-    $http({
-      method: 'GET',
-      url: 'http://localhost:10180/results'
-    }).then(function successCallback(response) {
-      console.debug(response.data);
-    }, function errorCallback(response) {
-    });
+    clientApiService.getResults()
+      .then(function successCallback(response) {
+        console.debug(response.data);
+      }, function errorCallback(response) {
+      });
 
     return {
       restrict: 'E',
@@ -21,13 +19,8 @@
     };
   }
 
-  function Ctrl(localStorageService) {
+  function Ctrl() {
     var vm = this;
-    vm.results = results;
-
-    function results() {
-      console.debug('Results:');
-      return 'Kalle';
-    }
+    vm.results = angular.fromJson('[{"id":"564f1bd9d4c64ebeaf277d6a","created":1448025049594,"user":{"id":null,"name":"kalle","email":"kalle@acme.com","password":null},"time":1111111,"middleTime":2222222,"result":"FINISHED"}]');
   }
 }());
