@@ -60,12 +60,7 @@ import static org.mockito.Mockito.*;
 @IntegrationTest("server.port:0")
 @TestPropertySource(locations = "classpath:application-test.properties")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
-@ActiveProfiles("int-test")
 public class CurrentRaceControllerIT {
-    @Rule
-    public MongoDbRule mongoDbRule = new MongoDbRule(mongoDb().databaseName("test").build());
-    @Autowired
-    private ApplicationContext applicationContext; //Needed by nosqlunit
     @Autowired
     private CurrentRaceRepository repository;
     @Autowired
@@ -277,29 +272,5 @@ public class CurrentRaceControllerIT {
                 }));
         assertNotNull(userList);
         assertEquals("nisse", userList.get(0).getName());
-    }
-
-    @Configuration
-    @EnableMongoRepositories
-    @Profile("int-test")
-    static class MongoConfiguration extends AbstractMongoConfiguration {
-        @Value("${spring.data.mongodb.uri}")
-        String mongoUri;
-
-        @Override
-        protected String getDatabaseName() {
-            return "test";
-        }
-
-        @Bean
-        @Override
-        public Mongo mongo() {
-            return new MongoClient(new MongoClientURI(mongoUri));
-        }
-
-        @Override
-        protected String getMappingBasePackage() {
-            return "se.cag.labs.currentrace.services.repository";
-        }
     }
 }

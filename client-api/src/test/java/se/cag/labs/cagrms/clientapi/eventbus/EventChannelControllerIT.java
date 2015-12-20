@@ -10,8 +10,6 @@ import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import se.cag.labs.cagrms.clientapi.ClientApiApplication;
@@ -28,6 +26,7 @@ import static com.jayway.restassured.RestAssured.when;
 public class EventChannelControllerIT {
     @Value("${local.server.port}")
     private int port;
+    private static final String EVENT_URL = "/event";
 
     @Before
     public void setup() {
@@ -36,40 +35,40 @@ public class EventChannelControllerIT {
 
     @Test
     public void eventShouldNotAllowOtherThanPOST() {
-        when().get("/event").then().statusCode(HttpStatus.METHOD_NOT_ALLOWED.value());
-        when().put("/event").then().statusCode(HttpStatus.METHOD_NOT_ALLOWED.value());
-        when().patch("/event").then().statusCode(HttpStatus.METHOD_NOT_ALLOWED.value());
-        when().delete("/event").then().statusCode(HttpStatus.METHOD_NOT_ALLOWED.value());
+        when().get(EVENT_URL).then().statusCode(HttpStatus.METHOD_NOT_ALLOWED.value());
+        when().put(EVENT_URL).then().statusCode(HttpStatus.METHOD_NOT_ALLOWED.value());
+        when().patch(EVENT_URL).then().statusCode(HttpStatus.METHOD_NOT_ALLOWED.value());
+        when().delete(EVENT_URL).then().statusCode(HttpStatus.METHOD_NOT_ALLOWED.value());
     }
 
     @Test
     public void eventShouldNotConsumeOtherThanJSON() {
-        given().contentType(ContentType.ANY).when().post("/event").then().statusCode(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value());
-        given().contentType(ContentType.TEXT).when().post("/event").then().statusCode(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value());
-        given().contentType(ContentType.XML).when().post("/event").then().statusCode(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value());
-        given().contentType(ContentType.HTML).when().post("/event").then().statusCode(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value());
-        given().contentType(ContentType.URLENC).when().post("/event").then().statusCode(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value());
-        given().contentType(ContentType.BINARY).when().post("/event").then().statusCode(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value());
+        given().contentType(ContentType.ANY).when().post(EVENT_URL).then().statusCode(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value());
+        given().contentType(ContentType.TEXT).when().post(EVENT_URL).then().statusCode(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value());
+        given().contentType(ContentType.XML).when().post(EVENT_URL).then().statusCode(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value());
+        given().contentType(ContentType.HTML).when().post(EVENT_URL).then().statusCode(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value());
+        given().contentType(ContentType.URLENC).when().post(EVENT_URL).then().statusCode(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value());
+        given().contentType(ContentType.BINARY).when().post(EVENT_URL).then().statusCode(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value());
     }
 
     @Test
     public void eventShouldReturnOKIfEventTypeExist() {
         String jsonRequest = "{\"eventType\": \"EVENT\"}";
 
-        given().contentType(ContentType.JSON).body(jsonRequest).when().post("/event").then().statusCode(HttpStatus.OK.value());
+        given().contentType(ContentType.JSON).body(jsonRequest).when().post(EVENT_URL).then().statusCode(HttpStatus.OK.value());
     }
 
     @Test
     public void eventShouldReturnBadRequestIfEventTypeNotExist() {
         String jsonRequest = "{\"asd\": \"EVENT\"}";
 
-        given().contentType(ContentType.JSON).body(jsonRequest).when().post("/event").then().statusCode(HttpStatus.BAD_REQUEST.value());
+        given().contentType(ContentType.JSON).body(jsonRequest).when().post(EVENT_URL).then().statusCode(HttpStatus.BAD_REQUEST.value());
     }
 
     @Test
     public void eventShouldReturnInternalServerErrorIfException() {
         String jsonRequest = "{asd: EVENT\"}";
 
-        given().contentType(ContentType.JSON).body(jsonRequest).when().post("/event").then().statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
+        given().contentType(ContentType.JSON).body(jsonRequest).when().post(EVENT_URL).then().statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
     }
 }
