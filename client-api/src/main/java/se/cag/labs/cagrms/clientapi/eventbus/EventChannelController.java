@@ -47,7 +47,7 @@ public class EventChannelController {
             eventChannelSocketHandler.broadcastMessage(jsonTree.toString());
             return ResponseEntity.ok().build();
         } catch (IOException e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 }
