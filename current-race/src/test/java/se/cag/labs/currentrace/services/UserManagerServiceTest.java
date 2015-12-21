@@ -41,7 +41,8 @@ public class UserManagerServiceTest {
 
     @Test
     public void givenRestTemplateExchangeSuccessfull_ExpectFilledArray() {
-        ResponseEntity<List<User>> responseEntity = new ResponseEntity<>(Arrays.asList(User.builder().name("nisse").build()), HttpStatus.OK);
+        User user = User.builder().name("nisse").id("id").password("password").build();
+        ResponseEntity<List<User>> responseEntity = new ResponseEntity<>(Arrays.asList(user), HttpStatus.OK);
         when(restTemplate.exchange(
                 anyString(),
                 any(HttpMethod.class),
@@ -58,6 +59,10 @@ public class UserManagerServiceTest {
                 typeReference
         );
         assertEquals(responseEntity.getBody(), result);
+        User foundUser = responseEntity.getBody().get(0);
+        assertEquals(user.getId(), foundUser.getId());
+        assertEquals(user.getName(), foundUser.getName());
+        assertEquals(user.getPassword(), foundUser.getPassword());
     }
 
     @Test
