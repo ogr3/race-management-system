@@ -1,6 +1,7 @@
 package se.cag.labs.currentrace.apicontroller;
 
 import com.jayway.restassured.RestAssured;
+import com.jayway.restassured.response.Response;
 import com.lordofthejars.nosqlunit.mongodb.MongoDbRule;
 import com.mongodb.Mongo;
 import com.mongodb.MongoClient;
@@ -35,6 +36,7 @@ import org.springframework.web.client.RestTemplate;
 import se.cag.labs.currentrace.CurrentRaceApplication;
 import se.cag.labs.currentrace.apicontroller.apimodel.RaceStatus;
 import se.cag.labs.currentrace.apicontroller.apimodel.User;
+import se.cag.labs.currentrace.apicontroller.apimodel.VersionResponse;
 import se.cag.labs.currentrace.services.CallbackService;
 import se.cag.labs.currentrace.services.UserManagerService;
 import se.cag.labs.currentrace.services.repository.CurrentRaceRepository;
@@ -272,5 +274,15 @@ public class CurrentRaceControllerIT {
                 }));
         assertNotNull(userList);
         assertEquals("nisse", userList.get(0).getName());
+    }
+
+    @Test
+    public void getVersion(){
+        Response response = when().get("/version");
+
+        assertEquals(HttpStatus.OK.value(), response.getStatusCode());
+        VersionResponse versionResponse = response.getBody().as(VersionResponse.class);
+        assertNotNull(versionResponse);
+        assertNotNull(versionResponse.getVersion());
     }
 }
