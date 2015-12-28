@@ -35,6 +35,18 @@ With integration-tests (requires local mongod running on port 27017):
 mvn install
 ```
 
+Build docker-images
+
+```sh
+mvn clean install -Pdocker
+```
+
+Start all docker-images together with docker-compose
+
+```sh
+docker-compose up
+```
+
 
 Portar
 ------
