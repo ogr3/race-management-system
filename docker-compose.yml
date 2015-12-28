@@ -1,0 +1,25 @@
+client-api:
+  image: seppaleinen/client-api
+  ports:
+   - "7979:7979"
+  links:
+   - current-race
+   - leaderboard
+   - race-administrator
+   - user-manager
+current-race:
+  image: seppaleinen/current-race
+  ports:
+   - "8761:8761"
+  links:
+   - user-manager
+leaderboard:
+  image: seppaleinen/leaderboard
+  ports:
+   - "8888:8888"
+race-administrator:
+  image: seppaleinen/race-administrator
+  ports:
+   - "10000:10000"
+user-manager:
+  image: seppaleinen/user-manager
