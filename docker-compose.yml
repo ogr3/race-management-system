@@ -13,15 +13,26 @@ current-race:
    - "10080:10080"
   links:
    - user-manager
-leaderboard:
-  image: seppaleinen/leaderboard
-  ports:
-   - "10180:10180"
-race-administrator:
-  image: seppaleinen/race-administrator
-  ports:
-   - "10380:10380"
+   - mongo
 user-manager:
   image: seppaleinen/user-manager
   ports:
    - "10280:10280"
+  links:
+   - mongo
+mongo:
+  image: mongo
+  ports:
+   - "27017:27017"
+leaderboard:
+  image: seppaleinen/leaderboard
+  ports:
+   - "10180:10180"
+  links:
+   - mongo
+race-administrator:
+  image: seppaleinen/race-administrator
+  ports:
+   - "10380:10380"
+  links:
+   - mongo
