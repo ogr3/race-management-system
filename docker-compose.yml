@@ -36,3 +36,9 @@ race-administrator:
    - "10380:10380"
   links:
    - mongo
+#cag-rms-client:
+#  image: seppaleinen/cag-rms-client
+#  ports:
+#   - "9002:9002"
+#  links:
+#   - client-api
