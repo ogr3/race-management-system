@@ -73,7 +73,6 @@ public class LeaderBoardControllerIT {
         assertEquals(2, foundUserResult.getSplitTime());
         assertEquals(3, foundUserResult.getTime());
         assertEquals(ResultType.FINISHED, foundUserResult.getResult());
-        assertEquals("NAME", foundUserResult.getUser().getId());
         assertEquals("EMAIL", foundUserResult.getUser().getUserId());
         assertEquals("PASSWORD", foundUserResult.getUser().getDisplayName());
     }
@@ -98,7 +97,6 @@ public class LeaderBoardControllerIT {
 
         User user = foundUserResult.getUser();
         assertNotNull(user);
-        assertEquals("NAME", user.getId());
         assertEquals("EMAIL", user.getUserId());
         assertEquals("PASSWORD", user.getDisplayName());
     }
