@@ -69,6 +69,6 @@ public class EventChannelControllerIT {
     public void eventShouldReturnInternalServerErrorIfException() {
         String jsonRequest = "{asd: EVENT\"}";
 
-        given().contentType(ContentType.JSON).body(jsonRequest).when().post(EVENT_URL).then().statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
+        given().contentType(ContentType.JSON).body(jsonRequest).when().post(EVENT_URL).then().statusCode(HttpStatus.BAD_REQUEST.value());
     }
 }
