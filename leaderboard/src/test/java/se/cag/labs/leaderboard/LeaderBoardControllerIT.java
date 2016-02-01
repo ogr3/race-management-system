@@ -15,7 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
-import se.cag.labs.usermanager.User;
 
 import java.util.Arrays;
 import java.util.List;
@@ -43,10 +42,10 @@ public class LeaderBoardControllerIT {
         RestAssured.port = port;
 
         userResult = new UserResult();
-        userResult.setMiddleTime(2);
+        userResult.setSplitTime(2);
         userResult.setTime(3);
         userResult.setResult(ResultType.FINISHED);
-        userResult.setUser(new User("NAME", "EMAIL", "PASSWORD"));
+        userResult.setUser(new User("NAME", null, "EMAIL", "PASSWORD"));
     }
 
     @Test
@@ -71,12 +70,12 @@ public class LeaderBoardControllerIT {
         UserResult foundUserResult = result.get(0);
         assertNotNull(foundUserResult.getId());
         assertNotNull(foundUserResult.getCreated());
-        assertEquals(2, foundUserResult.getMiddleTime());
+        assertEquals(2, foundUserResult.getSplitTime());
         assertEquals(3, foundUserResult.getTime());
         assertEquals(ResultType.FINISHED, foundUserResult.getResult());
-        assertEquals("NAME", foundUserResult.getUser().getName());
-        assertEquals("EMAIL", foundUserResult.getUser().getEmail());
-        assertEquals("PASSWORD", foundUserResult.getUser().getPassword());
+        assertEquals("NAME", foundUserResult.getUser().getId());
+        assertEquals("EMAIL", foundUserResult.getUser().getUserId());
+        assertEquals("PASSWORD", foundUserResult.getUser().getDisplayName());
     }
 
     @Test
@@ -92,15 +91,15 @@ public class LeaderBoardControllerIT {
         assertFalse(userResultList.isEmpty());
         assertEquals(1, userResultList.size());
         UserResult foundUserResult = userResultList.get(0);
-        assertEquals(2, foundUserResult.getMiddleTime());
+        assertEquals(2, foundUserResult.getSplitTime());
         assertEquals(3, foundUserResult.getTime());
         assertNotNull(foundUserResult.getCreated());
         assertEquals(ResultType.FINISHED, foundUserResult.getResult());
 
         User user = foundUserResult.getUser();
         assertNotNull(user);
-        assertEquals("NAME", user.getName());
-        assertEquals("EMAIL", user.getEmail());
-        assertEquals("PASSWORD", user.getPassword());
+        assertEquals("NAME", user.getId());
+        assertEquals("EMAIL", user.getUserId());
+        assertEquals("PASSWORD", user.getDisplayName());
     }
 }

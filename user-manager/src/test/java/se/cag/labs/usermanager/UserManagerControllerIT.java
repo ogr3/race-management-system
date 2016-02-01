@@ -77,8 +77,8 @@ public class UserManagerControllerIT {
         assertEquals(1, userList.size());
         User foundUser = userList.get(0);
 
-        assertEquals("NAME", foundUser.getName());
-        assertEquals("EMAIL", foundUser.getEmail());
+        assertEquals("NAME", foundUser.getId());
+        assertEquals("EMAIL", foundUser.getUserId());
         assertEquals("", foundUser.getPassword());
     }
 
@@ -90,7 +90,7 @@ public class UserManagerControllerIT {
         given().contentType(ContentType.JSON).body(new NewUser()).when().patch("/login").then().statusCode(HttpStatus.METHOD_NOT_ALLOWED.value());
 
         NewUser newUser = new NewUser();
-        newUser.setUsername("NAME");
+        newUser.setUserId("NAME");
         newUser.setPassword("PASSWORD");
 
         userRepository.save(user);
@@ -104,7 +104,7 @@ public class UserManagerControllerIT {
         Session session = sessionRepository.findByToken(token.getToken());
         assertNotNull(session);
 
-        User user = userRepository.findByName("NAME");
+        User user = userRepository.findByUserId("NAME");
         assertNotNull(user);
         assertEquals(user.getId(), session.getUserId());
     }
@@ -132,8 +132,8 @@ public class UserManagerControllerIT {
         assertEquals(HttpStatus.OK.value(), response.getStatusCode());
         User foundUser = response.getBody().as(User.class);
 
-        assertEquals(user.getName(), foundUser.getName());
-        assertEquals(user.getEmail(), foundUser.getEmail());
+        assertEquals(user.getId(), foundUser.getId());
+        assertEquals(user.getUserId(), foundUser.getUserId());
         assertEquals("", foundUser.getPassword());
     }
 
@@ -145,14 +145,14 @@ public class UserManagerControllerIT {
         given().contentType(ContentType.JSON).body(new NewUser()).when().patch("/registerNewUser").then().statusCode(HttpStatus.METHOD_NOT_ALLOWED.value());
 
         NewUser newUser = new NewUser();
-        newUser.setUsername("USERNAME");
+        newUser.setUserId("USERNAME");
         newUser.setPassword("PASSWORD");
 
         given().contentType(ContentType.JSON).body(newUser).when().post("/registerNewUser").then().statusCode(HttpStatus.CREATED.value());
 
-        User result = userRepository.findByName(newUser.getUsername());
+        User result = userRepository.findByUserId(newUser.getUserId());
         assertNotNull(result);
-        assertEquals(newUser.getUsername(), result.getName());
+        assertEquals(newUser.getUserId(), result.getUserId());
         assertEquals(newUser.getPassword(), result.getPassword());
     }
 }
