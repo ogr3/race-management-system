@@ -77,10 +77,6 @@ public class RaceAdministratorControllerIT {
 
         verify(currentRaceService, atLeastOnce()).startRace();
 
-        List<User> userQueueResult = userQueueRepository.findAll();
-        assertNotNull(userQueueResult);
-        assertEquals(1, userQueueResult.size());
-
         List<RaceStatus> activeRaceRepositoryResult = activeRaceRepository.findAll();
         assertNotNull(activeRaceRepositoryResult);
         assertEquals(1, activeRaceRepositoryResult.size());
@@ -103,8 +99,8 @@ public class RaceAdministratorControllerIT {
         assertEquals(1, userList.size());
 
         User foundUser = userList.get(0);
-        assertEquals("NAME", foundUser.getDisplayName());
-        assertEquals("EMAIL", foundUser.getUserId());
+        assertEquals("NAME", foundUser.getUserId());
+        assertEquals("EMAIL", foundUser.getDisplayName());
     }
 
     @Test
@@ -119,7 +115,7 @@ public class RaceAdministratorControllerIT {
         activeRaceRepository.save(raceStatus);
 
         given().contentType(ContentType.JSON).body(raceStatus).
-                when().post("/onracestatusupdate").then().statusCode(HttpStatus.OK.value());
+                when().post("/on-race-status-update").then().statusCode(HttpStatus.OK.value());
 
         List<RaceStatus> activeRaceList = activeRaceRepository.findAll();
         assertNotNull(activeRaceList);
