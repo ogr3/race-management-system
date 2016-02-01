@@ -12,11 +12,12 @@
     };
   }
 
-  function Ctrl(registerModal, clientApiService, notificationService) {
+  function Ctrl(registerModal, clientApiService, notificationService, APP_CONFIG) {
     var vm = this;
     var connectionStyle = {
       color: 'red'
     };
+    vm.buildInfo = APP_CONFIG.buildInfo;
     vm.signIn = signIn;
     vm.signOut = signOut;
     vm.setSelection = setSelection;
@@ -25,15 +26,45 @@
     vm.connected = false;
     vm.currentUser = clientApiService.getCurrentUser();
     clientApiService.setConnectionListener(connectionListener);
+    clientApiService.addEventListener(handleEvent);
+
+    updateStartMessage();
+
+    function handleEvent(event) {
+      console.debug('Event: ', event);
+      if (event.eventType === 'CURRENT_RACE_STATUS') {
+        showStartMessage(event.data);
+      }
+    }
+
+    function showStartMessage(raceStatus) {
+      if (raceStatus.user && raceStatus.user.userId === vm.currentUser.userId) {
+        switch (raceStatus.event) {
+          case 'NONE':
+            vm.startMessage = 'Dax att gå till start!!';
+            break;
+          default:
+            vm.startMessage = undefined;
+        }
+      }
+    }
 
     function connectionListener(state) {
       vm.connected = state === 'CONNECTED';
+    }
+
+    function updateStartMessage() {
+      clientApiService.getStatus()
+        .then(function (response) {
+          showStartMessage(response.data);
+        });
     }
 
     function signIn(userid, password) {
       clientApiService.login(userid, password)
         .then(function (userInfo) {
           vm.currentUser = userInfo;
+          updateStartMessage();
         })
         .catch(function (error) {
           console.log(error);
@@ -45,6 +76,7 @@
       console.debug('Sign out');
       vm.currentUser = undefined;
       vm.selection = 'home';
+      vm.startMessage = undefined;
       clientApiService.logout();
     }
 
@@ -58,12 +90,12 @@
         .then(function (newUser) {
           console.debug('Save new user:', newUser);
           clientApiService.addUser(newUser)
-          .then(function(){
-            notificationService.showInfoMessage('Fixat, nu är du reggad!');
-          })
-          .catch(function(){
-            notificationService.showErrorMessage('Nä, det det gick inge bra att regga det användarnamnet, det är nog upptaget.');
-          });
+            .then(function () {
+              notificationService.showInfoMessage('Fixat, nu är du reggad!');
+            })
+            .catch(function () {
+              notificationService.showErrorMessage('Nä, det det gick inge bra att regga det användarnamnet, det är nog upptaget.');
+            });
         })
         .catch(function () {
           console.debug('Cancel adding of user');

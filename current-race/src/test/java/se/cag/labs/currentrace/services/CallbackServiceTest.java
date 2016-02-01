@@ -2,8 +2,6 @@ package se.cag.labs.currentrace.services;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -12,7 +10,6 @@ import org.springframework.web.client.RestTemplate;
 import se.cag.labs.currentrace.apicontroller.apimodel.RaceStatus;
 import se.cag.labs.currentrace.services.repository.datamodel.CurrentRaceStatus;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -39,7 +36,7 @@ public class CallbackServiceTest {
         currentRaceStatus.setState(RaceStatus.State.ACTIVE);
         currentRaceStatus.setEvent(RaceStatus.Event.FINISH);
         currentRaceStatus.setStartTime(1L);
-        currentRaceStatus.setMiddleTime(1L);
+        currentRaceStatus.setSplitTime(1L);
         currentRaceStatus.setFinishTime(1L);
         currentRaceStatus.setRaceId("RACEID");
         currentRaceStatus.setRaceActivatedTime(1L);

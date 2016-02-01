@@ -26,7 +26,7 @@ public class ModelMapperTest {
         assertNotNull(result);
         assertEquals(RaceStatus.State.INACTIVE, result.getState());
         assertNull(result.getStartTime());
-        assertNull(result.getMiddleTime());
+        assertNull(result.getSplitTime());
         assertNull(result.getFinishTime());
         assertNull(result.getEvent());
     }
@@ -40,7 +40,7 @@ public class ModelMapperTest {
         assertNotNull(result);
         assertEquals(RaceStatus.Event.DISQUALIFIED, result.getEvent());
         assertNull(result.getStartTime());
-        assertNull(result.getMiddleTime());
+        assertNull(result.getSplitTime());
         assertNull(result.getFinishTime());
         assertNull(result.getState());
     }
@@ -54,21 +54,21 @@ public class ModelMapperTest {
         assertNotNull(result);
         assertNull(result.getEvent());
         assertEquals(new Date(1L), result.getStartTime());
-        assertNull(result.getMiddleTime());
+        assertNull(result.getSplitTime());
         assertNull(result.getFinishTime());
         assertNull(result.getState());
     }
 
     @Test
     public void GivenOnlyMiddleTime_ExpectEverythingElseNull() {
-        currentRaceStatus.setMiddleTime(1L);
+        currentRaceStatus.setSplitTime(1L);
 
         RaceStatus result = ModelMapper.createStatusResponse(currentRaceStatus);
 
         assertNotNull(result);
         assertNull(result.getEvent());
         assertNull(result.getStartTime());
-        assertEquals(new Date(1L), result.getMiddleTime());
+        assertEquals(new Date(1L), result.getSplitTime());
         assertNull(result.getFinishTime());
         assertNull(result.getState());
     }
@@ -82,7 +82,7 @@ public class ModelMapperTest {
         assertNotNull(result);
         assertNull(result.getEvent());
         assertNull(result.getStartTime());
-        assertNull(result.getMiddleTime());
+        assertNull(result.getSplitTime());
         assertEquals(new Date(1L), result.getFinishTime());
         assertNull(result.getState());
     }
@@ -96,7 +96,7 @@ public class ModelMapperTest {
         assertNotNull(result);
         assertNull(result.getEvent());
         assertNull(result.getStartTime());
-        assertNull(result.getMiddleTime());
+        assertNull(result.getSplitTime());
         assertNull(result.getFinishTime());
         assertEquals(RaceStatus.State.ACTIVE, result.getState());
     }

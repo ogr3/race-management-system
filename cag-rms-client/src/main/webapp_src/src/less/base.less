@@ -22,6 +22,7 @@ body {
 
 .site-footer {
   background: url(../../img/ui/bb8.png) no-repeat center bottom 20px;
+  background-size: 200px;
   opacity: 0.5;
   position: absolute;
   bottom: 0;
@@ -94,6 +95,77 @@ input {
   font-size: small;
 }
 
-td.user-queue-item {
-  font-family: Arial,sans-sarif;
+.lastrace * {
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  table {
+    margin: 0 auto;
+  }
 }
+
+.user-queue * {
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+}
+
+.leaderboard * {
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+}
+
+.center {
+  text-align: center;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.active-race * {
+  font-size: 20px;
+}
+
+.start-message {
+  opacity: 0.9;
+  font-size: 36px;
+  text-align: center;
+  width: 90%;
+  position: relative;
+  margin-left: 5%;
+  margin-right: 5%;
+  top: 10px;
+  z-index: 1000;
+}
+@media screen and (min-width: 768px) {
+  .site-footer {
+    background: url(../../img/ui/bb8.png) no-repeat center bottom 20px;
+    opacity: 0.5;
+    position: absolute;
+    bottom: 0;
+    height: 300px;
+    width: 100%;
+    z-index: -1;
+    //border: green solid 2px;
+  }
+
+  .user-queue * {
+    font-family: Arial, sans-serif;
+    font-size: 24px;
+  }
+
+  .leaderboard * {
+    font-family: Arial, sans-serif;
+    font-size: 24px;
+  }
+
+  .active-race * {
+    font-size: 32px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+
+  .lastrace * {
+    font-size: 18px;
+  }
+
+
+}
+

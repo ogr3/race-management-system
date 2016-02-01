@@ -12,7 +12,7 @@ Install MongoDB: https://docs.mongodb.org/manual/installation/
 
 MongoDB GUI, 3T MongoChef: http://3t.io/mongochef/download/
 
-Start mongod: 
+Start mongod:
 
     $ mongod --dbpath <path to DB>
 
@@ -35,8 +35,23 @@ With integration-tests (requires local mongod running on port 27017):
 mvn install
 ```
 
+To clean all generated files from node.js in the client, use the profile clean-node:
 
-Portar
+```sh
+mvn -Pclean-node clean
+```
+
+Submodules
+----------
+
+- cag-rms-client: The Angular 1.x based web client for the application
+- client-api: The REST-API facade towards other back-end services used by the cag-rms-client
+- race-administrator: The service handling user queueing and orchestration of races
+- current-race: The service handling and supervising the currently ongoing race and receiving detector passage events
+- leaderboard: The service keeping track of all results
+- user-manager: The service keeping track of registered users and active sessions
+
+Ports
 ------
 * current-race: 10080
 * leaderboard: 10180
@@ -44,6 +59,6 @@ Portar
 * race-administrator: 10380
 * client-api: 10580
 
-Tidtagningsenheten
--------------------
+Time measurement
+----------------
 Foto resistor spec: https://tkkrlab.nl/wiki/Arduino_KY-018_Photo_resistor_module

@@ -43,7 +43,7 @@ public class StartRaceServiceTest {
         assertEquals(StartRaceService.ReturnStatus.STARTED, result);
 
         verify(repository, times(1)).findByRaceId(anyString());
-        verify(timerService, times(1)).startTimer();
+        verify(timerService, times(1)).trigAsyncStatusUpdate();
         verify(repository, times(1)).save(argument.capture());
 
         assertEquals(callbackUrl, argument.getValue().getCallbackUrl());
@@ -63,7 +63,7 @@ public class StartRaceServiceTest {
         assertEquals(StartRaceService.ReturnStatus.STARTED, result);
 
         verify(repository, times(1)).findByRaceId(anyString());
-        verify(timerService, times(1)).startTimer();
+        verify(timerService, times(1)).trigAsyncStatusUpdate();
         verify(repository, times(1)).save(argument.capture());
 
         assertEquals(callbackUrl, argument.getValue().getCallbackUrl());
@@ -71,7 +71,7 @@ public class StartRaceServiceTest {
         assertEquals(RaceStatus.State.ACTIVE, argument.getValue().getState());
         assertNotNull(argument.getValue().getRaceActivatedTime());
         assertNull(argument.getValue().getStartTime());
-        assertNull(argument.getValue().getMiddleTime());
+        assertNull(argument.getValue().getSplitTime());
         assertNull(argument.getValue().getFinishTime());
     }
 
@@ -87,7 +87,7 @@ public class StartRaceServiceTest {
         assertEquals(StartRaceService.ReturnStatus.FOUND, result);
 
         verify(repository, times(1)).findByRaceId(anyString());
-        verify(timerService, times(1)).startTimer();
+        verify(timerService, times(1)).trigAsyncStatusUpdate();
         verify(repository, never()).save(any(CurrentRaceStatus.class));
     }
 }

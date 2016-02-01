@@ -2,32 +2,21 @@ package se.cag.labs.currentrace.apicontroller;
 
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.response.Response;
-import com.lordofthejars.nosqlunit.mongodb.MongoDbRule;
-import com.mongodb.Mongo;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
-import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -48,7 +37,6 @@ import java.util.List;
 
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
-import static com.lordofthejars.nosqlunit.mongodb.MongoDbConfigurationBuilder.mongoDb;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -188,33 +176,31 @@ public class CurrentRaceControllerIT {
 
         currentRaceStatus = repository.findByRaceId(CurrentRaceStatus.ID);
 
-        verify(restTemplateMock, times(1)).postForLocation(
-                "http://localhost:" + port + "/onracestatusupdate",
-                RaceStatus.builder()
-                        .event(RaceStatus.Event.START)
-                        .startTime(new Date(1234))
-                        .state(RaceStatus.State.ACTIVE)
-                        .build());
-        verify(restTemplateMock, times(1)).postForLocation(
-                "http://localhost:" + port + "/onracestatusupdate",
-                RaceStatus.builder()
-                        .event(RaceStatus.Event.MIDDLE)
-                        .startTime(new Date(1234))
-                        .middleTime(new Date(12345))
-                        .state(RaceStatus.State.ACTIVE)
-                        .build());
-        verify(restTemplateMock, times(1)).postForLocation(
-                "http://localhost:" + port + "/onracestatusupdate",
-                RaceStatus.builder()
-                        .event(RaceStatus.Event.FINISH)
-                        .startTime(new Date(1234))
-                        .middleTime(new Date(12345))
-                        .finishTime(new Date(123456))
-                        .state(RaceStatus.State.INACTIVE)
-                        .build());
+        ArgumentCaptor<RaceStatus> raceStatusArgumentCaptor = ArgumentCaptor.forClass(RaceStatus.class);
+        verify(restTemplateMock, times(3)).postForLocation(
+                eq("http://localhost:" + port + "/onracestatusupdate"),
+                raceStatusArgumentCaptor.capture());
+
+        List<RaceStatus> capturedStatuses = raceStatusArgumentCaptor.getAllValues();
+
+        assertEquals(RaceStatus.Event.START, capturedStatuses.get(0).getEvent());
+        assertEquals(new Date(1234), capturedStatuses.get(0).getStartTime());
+        assertEquals(RaceStatus.State.ACTIVE, capturedStatuses.get(0).getState());
+
+        assertEquals(RaceStatus.Event.SPLIT, capturedStatuses.get(1).getEvent());
+        assertEquals(new Date(1234), capturedStatuses.get(1).getStartTime());
+        assertEquals(new Date(12345), capturedStatuses.get(1).getSplitTime());
+        assertEquals(RaceStatus.State.ACTIVE, capturedStatuses.get(1).getState());
+
+        assertEquals(RaceStatus.Event.FINISH, capturedStatuses.get(2).getEvent());
+        assertEquals(new Date(1234), capturedStatuses.get(2).getStartTime());
+        assertEquals(new Date(12345), capturedStatuses.get(2).getSplitTime());
+        assertEquals(new Date(123456), capturedStatuses.get(2).getFinishTime());
+        assertEquals(RaceStatus.State.INACTIVE, capturedStatuses.get(2).getState());
+
         assertNotNull(currentRaceStatus);
         assertEquals(new Long(1234), currentRaceStatus.getStartTime());
-        assertEquals(new Long(12345), currentRaceStatus.getMiddleTime());
+        assertEquals(new Long(12345), currentRaceStatus.getSplitTime());
         assertEquals(new Long(123456), currentRaceStatus.getFinishTime());
         assertEquals(RaceStatus.Event.FINISH, currentRaceStatus.getEvent());
         assertEquals(RaceStatus.State.INACTIVE, currentRaceStatus.getState());
@@ -226,12 +212,13 @@ public class CurrentRaceControllerIT {
         currentRaceStatus.setState(RaceStatus.State.ACTIVE);
         repository.save(currentRaceStatus);
 
-        given().param("sensorID", "FAULTY").param("timestamp", 1234).
-                when().post(CurrentRaceController.PASSAGE_DETECTED_URL).then().statusCode(HttpStatus.EXPECTATION_FAILED.value());
+        given().param("sensorID", "FAULTY").param("timestamp", 1234)
+                .when().post(CurrentRaceController.PASSAGE_DETECTED_URL)
+                .then().statusCode(HttpStatus.EXPECTATION_FAILED.value());
     }
 
     @Test
-    public void secondPassageOfMiddleSensorIsIgnored() {
+    public void secondPassageOfSplitSensorIsIgnored() {
         CurrentRaceStatus currentRaceStatus = new CurrentRaceStatus();
         currentRaceStatus.setState(RaceStatus.State.ACTIVE);
         currentRaceStatus.setCallbackUrl(callbackUrl);
@@ -246,12 +233,12 @@ public class CurrentRaceControllerIT {
         verify(restTemplateMock, times(1)).postForLocation(
                 "http://localhost:" + port + "/onracestatusupdate",
                 RaceStatus.builder()
-                        .event(RaceStatus.Event.MIDDLE)
-                        .middleTime(new Date(1234))
+                        .event(RaceStatus.Event.SPLIT)
+                        .splitTime(new Date(1234))
                         .state(RaceStatus.State.ACTIVE)
                         .build());
         assertNotNull(currentRaceStatus);
-        assertEquals(new Long(1234), currentRaceStatus.getMiddleTime());
+        assertEquals(new Long(1234), currentRaceStatus.getSplitTime());
     }
 
     @Test

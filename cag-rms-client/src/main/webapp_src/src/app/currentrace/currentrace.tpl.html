@@ -1,41 +1,83 @@
-<div>
-    <div style="text-align: center; width: 100%;">
-        <table style="width: 100%;">
-            <tr>
-                <td style="text-align: right; padding-right: 5px;">Tävlande</td>
-                <td style="text-align: left">{{username}}</td>
-            </tr>
-            <tr>
-                <td style="text-align: right; padding-right: 5px;">Starttid</td>
-                <td style="text-align: left">{{startTime | date:'HH:mm:ss.sss'}}</td>
-            </tr>
-            <tr>
-                <td style="text-align: right; padding-right: 5px;">Nuvarande tid</td>
-                <td style="text-align: left">{{runningTime | date:'mm:ss.sss'}}</td>
-            </tr>
-            <tr>
-                <td style="text-align: right;  padding-right: 5px;">Mellantid</td>
-                <td style="text-align: left">
-                    <div ng-if="splitTime">
-                        {{splitTime | date:'HH:mm:ss.sss'}}
-                    </div>
-                    <div ng-if="!splitTime">--:--.---</div>
-                </td>
-            </tr>
-            <tr>
-                <td style="text-align: right;  padding-right: 5px;">Sluttid</td>
-                <td style="text-align: left">{{finishTime | date:'HH:mm:ss.sss'}}</td>
-            </tr>
-        </table>
+<div class="row">
+  <div class="center">
+    <h1 ng-if="isRaceActive">Lopp pågår</h1>
+    <h1 ng-if="!isRaceActive">Inget lopp pågår</h1>
+  </div>
+</div>
+
+<div class="row">
+  <div class="center">
+    <div ng-switch="raceEvent">
+      <h2 ng-switch-when="DISQUALIFIED">
+        Sucker! diskad!
+      </h2>
+      <h3 ng-switch-when="NONE">
+        Väntar på start...
+      </h3>
+      <h3 ng-switch-when="START">
+        Loppet har startat!
+      </h3>
+      <h3 ng-switch-when="SPLIT">
+        Mellanstation passerad!
+      </h3>
+      <h2 ng-switch-when="FINISH">
+        Målstation passerad!
+      </h2>
+      <div ng-switch-default></div>
     </div>
-    <div style="text-align: center; padding: 20px;">
-        <div ng-if="isRaceActive">Lopp Pågår!</div>
-        <div ng-switch="raceEvent">
-            <div ng-switch-when="DISQUALIFIED">
-                Sucker! diskad!
-            </div>
-            <div ng-switch-default>Inget event värt att notera</div>
-        </div>
-        <div ng-if="!isRaceActive">Klart</div>
+  </div>
+</div>
+<div class="active-race">
+  <div class="row">
+    <div class="col-xs-6"><span class="pull-right">Tävlande</span></div>
+    <div class="col-xs-6">
+      <div ng-if="username">{{username}}</div>
+      <div ng-if="!username">----</div>
     </div>
+  </div>
+  <div class="row">
+    <div class="col-xs-6"><span class="pull-right">
+      <span ng-if="!finishTime">Tid</span>
+      <span ng-if="finishTime">Sluttid</span>
+    </span></div>
+    <div class="col-xs-6">
+      <div ng-if="runningTime && !finishTime">
+        {{runningTime | date:'HH:mm:ss.sss'}}
+      </div>
+      <div ng-if="finishTime">
+        {{finishTime | date:'HH:mm:ss.sss'}}
+      </div>
+      <div ng-if="!runningTime && !finishTime">--:--.---</div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-xs-6"><span class="pull-right">Mellantid</span></div>
+    <div class="col-xs-6">
+      <div ng-if="splitTime">
+        {{splitTime | date:'HH:mm:ss.sss'}}
+      </div>
+      <div ng-if="!splitTime">--:--.---</div>
+    </div>
+  </div>
+</div>
+<hr>
+<div class="row lastrace">
+  <div class="center"><strong>Föregående lopp</strong></div>
+  <br>
+  <div class="center col-xs-12">
+    <table class="center">
+      <tr>
+        <th class="col-xs-2 center"><strong>Tävlande</strong></th>
+        <th class="col-xs-2 center"><strong>Tid</strong></th>
+        <th class="col-xs-2 center"><strong>Mellantid</strong></th>
+      </tr>
+      <tr>
+        <td class="col-xs-2 center">{{lastRace.user}}</td>
+        <td class="col-xs-2 center">{{lastRace.finishTime|date:'HH:mm:ss.sss'}}</td>
+        <td class="col-xs-2 center">{{lastRace.splitTime|date:'HH:mm:ss.sss'}}</td>
+      </tr>
+    </table>
+    <br>
+    <h5 class="center"><strong>Resultat: {{lastRace.result}}</strong></h5>
+  </div>
 </div>

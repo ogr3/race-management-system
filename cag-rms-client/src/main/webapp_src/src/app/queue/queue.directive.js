@@ -13,15 +13,56 @@
     };
   }
 
-  function Ctrl(clientApiService) {
+  function Ctrl($scope, clientApiService) {
     var vm = this;
+    var racingUser;
+    var loggedInUser = clientApiService.getCurrentUser();
 
     vm.enteredRacers = [];
     vm.enterMe = enterMe;
     vm.removeMe = removeMe;
     vm.hasEntered = hasEntered;
+    vm.isActiveRace = isActiveRace;
 
+    clientApiService.addEventListener(handleEvent);
+
+    $scope.$on(
+      '$destroy',
+      function () {
+        console.debug('destroy called');
+        clientApiService.removeEventListener(handleEvent);
+      }
+    );
+
+    clientApiService.getStatus()
+      .then(function(response) {
+        handleStatus(response.data);
+      });
     loadUserQueue();
+
+    function isActiveRace() {
+      return racingUser && racingUser.userId === loggedInUser.userId;
+    }
+
+    function handleStatus(raceStatus) {
+      if (raceStatus.state === 'ACTIVE') {
+        racingUser = raceStatus.user;
+      } else {
+        racingUser = null;
+      }
+    }
+
+    function handleEvent(event) {
+      console.debug('Event: ', event);
+      switch (event.eventType) {
+        case  'QUEUE_UPDATED':
+          loadUserQueue();
+          return;
+        case 'CURRENT_RACE_STATUS':
+          handleStatus(event.data);
+          return;
+      }
+    }
 
     function loadUserQueue() {
       return clientApiService.getUserQueue()

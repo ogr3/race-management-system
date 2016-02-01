@@ -12,12 +12,13 @@ import se.cag.labs.currentrace.services.CallbackService;
 import se.cag.labs.currentrace.services.repository.CurrentRaceRepository;
 import se.cag.labs.currentrace.services.repository.datamodel.CurrentRaceStatus;
 
-import java.util.Date;
-
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class VerifyRacePassagesTimerTaskTest {
     @InjectMocks
@@ -71,7 +72,7 @@ public class VerifyRacePassagesTimerTaskTest {
     public void givenMiddleTimeNullAndActivatedOverThreeMinutesExpectDISQUALIFIED() {
         currentRaceStatus.setState(RaceStatus.State.ACTIVE);
         currentRaceStatus.setStartTime(new DateTime().minusMinutes(3).minusSeconds(1).getMillis());
-        currentRaceStatus.setMiddleTime(null);
+        currentRaceStatus.setSplitTime(null);
         currentRaceStatus.setRaceActivatedTime(new DateTime().getMillis());
 
         when(repository.findByRaceId(anyString())).thenReturn(currentRaceStatus);
@@ -90,7 +91,7 @@ public class VerifyRacePassagesTimerTaskTest {
     public void givenFinishTimeNullAndActivatedOverThreeMinutesExpectNOT_FINISHED() {
         currentRaceStatus.setState(RaceStatus.State.ACTIVE);
         currentRaceStatus.setStartTime(new DateTime().getMillis());
-        currentRaceStatus.setMiddleTime(new DateTime().minusMinutes(3).minusSeconds(1).getMillis());
+        currentRaceStatus.setSplitTime(new DateTime().minusMinutes(3).minusSeconds(1).getMillis());
         currentRaceStatus.setFinishTime(null);
         currentRaceStatus.setRaceActivatedTime(new DateTime().getMillis());
 

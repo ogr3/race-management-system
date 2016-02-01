@@ -10,6 +10,8 @@ module.exports = function (grunt) {
 
   var clientApiBaseUrl = grunt.option('clientapibase') || 'localhost:10580';
 
+  var buildInfo = grunt.option('buildinfo') || 'dev-'+Date.now();
+
   /**
    * Load in our build configuration file.
    */
@@ -204,7 +206,7 @@ module.exports = function (grunt) {
         dest: '<%= build_dir %>/',
         options: {
           process: function (content, srcpath) {
-            var newContent = content.replace(/clientApi\:.*\'.*\'/g, "clientApi:'" + clientApiBaseUrl + "'");
+            var newContent = content.replace(/clientApi\:.*\'.*\'/g, "clientApi:'" + clientApiBaseUrl + "',buildInfo:'"+buildInfo+"'");
             console.log('New content: ' + newContent);
             return newContent;
           }
@@ -366,38 +368,7 @@ module.exports = function (grunt) {
         'Gruntfile.js'
       ],
       options: {
-        curly: true,
-        immed: true,
-        newcap: true,
-        noarg: true,
-        sub: true,
-        boss: false,
-        eqnull: false,
-        globalstrict: true,
-        jquery: true,
-        browser: true,
-        devel: true,
-        debug: true,
-        laxcomma: true,
-        globals: {
-          module: true,
-          require: true,
-          Modernizr: true,
-          angular: true,
-          _: true,
-          jQuery: true,
-          jasmine: true,
-          describe: true,
-          ddescribe: true,
-          xdescribe: true,
-          it: true,
-          xit: true,
-          expect: true,
-          beforeEach: true,
-          afterEach: true,
-          inject: true,
-          spyOn: true
-        }
+        jshintrc: true
       }
     },
 

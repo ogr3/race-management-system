@@ -25,8 +25,8 @@ public class EventChannelController {
 
     @RequestMapping(value = "/event", method = RequestMethod.POST, consumes = {"application/json"})
     @ApiOperation(value = "Send an event to the client, via the event bus",
-            notes = "Send an event to the client, via the event bus.<br>"+
-                    "The event shall be a JSON object with at least one field:<br>"+
+            notes = "Send an event to the client, via the event bus.<br>" +
+                    "The event shall be a JSON object with at least one field:<br>" +
                     "<pre>\n  {\n    \"eventName\":&lt;string&gt;\n  }\n</pre>")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The event object was sent successfully"),
@@ -47,7 +47,7 @@ public class EventChannelController {
             eventChannelSocketHandler.broadcastMessage(jsonTree.toString());
             return ResponseEntity.ok().build();
         } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.badRequest().build();
         }
     }
 }

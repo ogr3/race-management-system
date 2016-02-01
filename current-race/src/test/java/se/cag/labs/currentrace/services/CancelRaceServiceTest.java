@@ -47,7 +47,7 @@ public class CancelRaceServiceTest {
         currentRaceStatus.setState(RaceStatus.State.ACTIVE);
         currentRaceStatus.setEvent(RaceStatus.Event.FINISH);
         currentRaceStatus.setStartTime(1L);
-        currentRaceStatus.setMiddleTime(1L);
+        currentRaceStatus.setSplitTime(1L);
         currentRaceStatus.setFinishTime(1L);
         currentRaceStatus.setRaceId("RACEID");
         currentRaceStatus.setRaceActivatedTime(1L);
@@ -66,7 +66,7 @@ public class CancelRaceServiceTest {
         assertEquals(RaceStatus.State.INACTIVE, argument.getValue().getState());
         assertNull(argument.getValue().getEvent());
         assertNull(argument.getValue().getStartTime());
-        assertNull(argument.getValue().getMiddleTime());
+        assertNull(argument.getValue().getSplitTime());
         assertNull(argument.getValue().getFinishTime());
         assertEquals("RACEID", argument.getValue().getRaceId());
         assertNull(argument.getValue().getRaceActivatedTime());
@@ -76,7 +76,7 @@ public class CancelRaceServiceTest {
         assertEquals(RaceStatus.State.INACTIVE, argument.getValue().getState());
         assertNull(argument.getValue().getEvent());
         assertNull(argument.getValue().getStartTime());
-        assertNull(argument.getValue().getMiddleTime());
+        assertNull(argument.getValue().getSplitTime());
         assertNull(argument.getValue().getFinishTime());
         assertEquals("RACEID", argument.getValue().getRaceId());
         assertNull(argument.getValue().getRaceActivatedTime());

@@ -4,7 +4,6 @@ import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -18,8 +17,9 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.util.ReflectionTestUtils;
-import se.cag.labs.raceadmin.services.CurrentRaceService;
-import se.cag.labs.usermanager.User;
+import org.springframework.web.client.RestTemplate;
+import se.cag.labs.raceadmin.peerservices.ClientApiService;
+import se.cag.labs.raceadmin.peerservices.CurrentRaceService;
 
 import java.util.Arrays;
 import java.util.List;
@@ -49,25 +49,29 @@ public class RaceAdministratorControllerIT {
     private CurrentRaceService currentRaceService;
     @Autowired
     private RaceAdministratorController raceAdministratorController;
+    @Autowired
+    private ClientApiService clientApiService;
+    @Mock
+    private RestTemplate restTemplate;
 
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
         ReflectionTestUtils.setField(raceAdministratorController, "currentRaceService", currentRaceService);
+        ReflectionTestUtils.setField(clientApiService, "restTemplate", restTemplate);
         activeRaceRepository.deleteAll();
         userQueueRepository.deleteAll();
         RestAssured.port = port;
         user = new User();
-        user.setName("NAME");
-        user.setEmail("EMAIL");
-        user.setPassword("PASSWORD");
+        user.setUserId("NAME");
+        user.setDisplayName("EMAIL");
     }
 
     @Test
     public void registerForRace() {
         given().body(user).when().put("/userqueue").then().statusCode(HttpStatus.METHOD_NOT_ALLOWED.value());
         given().body(user).when().patch("/userqueue").then().statusCode(HttpStatus.METHOD_NOT_ALLOWED.value());
-        given().body(user).when().delete("/userqueue").then().statusCode(HttpStatus.METHOD_NOT_ALLOWED.value());
+        given().body(user).when().delete("/userqueue").then().statusCode(HttpStatus.BAD_REQUEST.value());
 
         given().contentType(ContentType.JSON).body(user).post("/userqueue").then().statusCode(HttpStatus.OK.value());
 
@@ -82,9 +86,8 @@ public class RaceAdministratorControllerIT {
         assertEquals(1, activeRaceRepositoryResult.size());
 
         RaceStatus raceStatus = activeRaceRepositoryResult.get(0);
-        assertEquals("NAME", raceStatus.getUser().getName());
-        assertEquals("EMAIL", raceStatus.getUser().getEmail());
-        assertEquals("PASSWORD", raceStatus.getUser().getPassword());
+        assertEquals("NAME", raceStatus.getUser().getUserId());
+        assertEquals("EMAIL", raceStatus.getUser().getDisplayName());
     }
 
     @Test
@@ -100,9 +103,8 @@ public class RaceAdministratorControllerIT {
         assertEquals(1, userList.size());
 
         User foundUser = userList.get(0);
-        assertEquals("NAME", foundUser.getName());
-        assertEquals("EMAIL", foundUser.getEmail());
-        assertEquals("PASSWORD", foundUser.getPassword());
+        assertEquals("NAME", foundUser.getDisplayName());
+        assertEquals("EMAIL", foundUser.getUserId());
     }
 
     @Test
@@ -110,7 +112,7 @@ public class RaceAdministratorControllerIT {
         RaceStatus raceStatus = new RaceStatus(user);
         raceStatus.setState(RaceStatus.RaceState.ACTIVE);
         raceStatus.setStartTime(1L);
-        raceStatus.setMiddleTime(2L);
+        raceStatus.setSplitTime(2L);
         raceStatus.setFinishTime(3L);
         raceStatus.setEvent(RaceStatus.RaceEvent.START);
 
@@ -126,11 +128,10 @@ public class RaceAdministratorControllerIT {
         RaceStatus foundRaceStatus = activeRaceList.get(0);
 
         assertEquals(new Long(1), foundRaceStatus.getStartTime());
-        assertEquals(new Long(2), foundRaceStatus.getMiddleTime());
+        assertEquals(new Long(2), foundRaceStatus.getSplitTime());
         assertEquals(new Long(3), foundRaceStatus.getFinishTime());
-        assertEquals(user.getName(), foundRaceStatus.getUser().getName());
-        assertEquals(user.getEmail(), foundRaceStatus.getUser().getEmail());
-        assertEquals(user.getPassword(), foundRaceStatus.getUser().getPassword());
+        assertEquals(user.getDisplayName(), foundRaceStatus.getUser().getDisplayName());
+        assertEquals(user.getUserId(), foundRaceStatus.getUser().getUserId());
         assertEquals(RaceStatus.RaceEvent.START, foundRaceStatus.getEvent());
         assertEquals(RaceStatus.RaceState.ACTIVE, foundRaceStatus.getState());
     }
