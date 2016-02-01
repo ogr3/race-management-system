@@ -53,33 +53,19 @@ public class UserManagerControllerIT {
     public void getUsers() {
         userRepository.save(user);
 
-        Response getResponse = when().get("/users");
-        validateGetUsersResponse(getResponse);
+        Response getResponse = when().put("/users");
 
-        Response postResponse = when().post("/users");
-        validateGetUsersResponse(postResponse);
+        assertEquals(HttpStatus.OK.value(), getResponse.statusCode());
 
-        Response patchResponse = when().patch("/users");
-        validateGetUsersResponse(patchResponse);
-
-        Response deleteResponse = when().delete("/users");
-        validateGetUsersResponse(deleteResponse);
-
-        Response putResponse = when().put("/users");
-        validateGetUsersResponse(putResponse);
-    }
-
-    private void validateGetUsersResponse(Response response){
-        assertEquals(HttpStatus.OK.value(), response.statusCode());
-
-        List<User> userList = Arrays.asList(response.body().as(User[].class));
+        List<User> userList = Arrays.asList(getResponse.body().as(User[].class));
         assertNotNull(userList);
         assertEquals(1, userList.size());
         User foundUser = userList.get(0);
 
-        assertEquals("NAME", foundUser.getId());
-        assertEquals("EMAIL", foundUser.getUserId());
+        assertEquals("NAME", foundUser.getUserId());
+        assertEquals("EMAIL", foundUser.getDisplayName());
         assertEquals("", foundUser.getPassword());
+
     }
 
     @Test
@@ -98,28 +84,19 @@ public class UserManagerControllerIT {
         Response response = given().contentType(ContentType.JSON).body(newUser).when().post("/login");
         assertEquals(HttpStatus.OK.value(), response.getStatusCode());
 
-        Token token = response.getBody().as(Token.class);
+        UserInfo token = response.getBody().as(UserInfo.class);
         assertNotNull(token);
 
-        Session session = sessionRepository.findByToken(token.getToken());
-        assertNotNull(session);
-
         User user = userRepository.findByUserId("NAME");
-        assertNotNull(user);
-        assertEquals(user.getId(), session.getUserId());
+        assertNotNull("User should not be null", user);
     }
 
     @Test
     public void getUserForToken() {
-        given().contentType(ContentType.JSON).body(new Token("")).when().get("/getUserForToken").then().statusCode(HttpStatus.METHOD_NOT_ALLOWED.value());
-        given().contentType(ContentType.JSON).body(new Token("")).when().delete("/getUserForToken").then().statusCode(HttpStatus.METHOD_NOT_ALLOWED.value());
-        given().contentType(ContentType.JSON).body(new Token("")).when().put("/getUserForToken").then().statusCode(HttpStatus.METHOD_NOT_ALLOWED.value());
-        given().contentType(ContentType.JSON).body(new Token("")).when().patch("/getUserForToken").then().statusCode(HttpStatus.METHOD_NOT_ALLOWED.value());
-
         Token token = new Token("TOKEN");
 
         Session session = new Session();
-        session.setToken("TOKEN");
+        session.setToken("{\"token\":\"TOKEN\"}");
         session.setUserId("USERID");
         session.setTimeout(LocalDateTime.now().plusDays(1));
         sessionRepository.save(session);
@@ -127,28 +104,22 @@ public class UserManagerControllerIT {
         user.setId("USERID");
         userRepository.save(user);
 
-        Response response = given().contentType(ContentType.JSON).body(token).when().post("/getUserForToken");
+        Response response = given().param("token", token).when().get("/users");
 
         assertEquals(HttpStatus.OK.value(), response.getStatusCode());
         User foundUser = response.getBody().as(User.class);
 
-        assertEquals(user.getId(), foundUser.getId());
         assertEquals(user.getUserId(), foundUser.getUserId());
         assertEquals("", foundUser.getPassword());
     }
 
     @Test
     public void registerNewUser() {
-        given().contentType(ContentType.JSON).body(new NewUser()).when().get("/registerNewUser").then().statusCode(HttpStatus.METHOD_NOT_ALLOWED.value());
-        given().contentType(ContentType.JSON).body(new NewUser()).when().delete("/registerNewUser").then().statusCode(HttpStatus.METHOD_NOT_ALLOWED.value());
-        given().contentType(ContentType.JSON).body(new NewUser()).when().put("/registerNewUser").then().statusCode(HttpStatus.METHOD_NOT_ALLOWED.value());
-        given().contentType(ContentType.JSON).body(new NewUser()).when().patch("/registerNewUser").then().statusCode(HttpStatus.METHOD_NOT_ALLOWED.value());
-
         NewUser newUser = new NewUser();
         newUser.setUserId("USERNAME");
         newUser.setPassword("PASSWORD");
 
-        given().contentType(ContentType.JSON).body(newUser).when().post("/registerNewUser").then().statusCode(HttpStatus.CREATED.value());
+        given().contentType(ContentType.JSON).body(newUser).when().post("/users").then().statusCode(HttpStatus.CREATED.value());
 
         User result = userRepository.findByUserId(newUser.getUserId());
         assertNotNull(result);
