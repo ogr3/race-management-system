@@ -12,17 +12,17 @@
     <description>The User Manager service</description>
 
     <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>1.3.2.RELEASE</version>
-        <relativePath/> <!-- lookup parent from repository -->
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-parent</artifactId>
+      <version>1.3.7.RELEASE</version>
+      <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>1.8</java.version>
-        <spring.boot.version>1.3.2.RELEASE</spring.boot.version>
-        <evosuiteVersion>1.0.3</evosuiteVersion>
+      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+      <java.version>1.8</java.version>
+      <spring.boot.version>1.3.7.RELEASE</spring.boot.version>
+      <evosuiteVersion>1.0.3</evosuiteVersion>
     </properties>
 
     <dependencies>
@@ -121,10 +121,10 @@
         </dependency>
 
         <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.16.6</version>
-            <scope>provided</scope>
+          <groupId>org.projectlombok</groupId>
+          <artifactId>lombok</artifactId>
+          <version>1.16.10</version>
+          <scope>provided</scope>
         </dependency>
 
         <!-- Evosuite test generator -->
